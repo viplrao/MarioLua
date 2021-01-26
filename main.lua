@@ -1,10 +1,10 @@
 -- Vipul Rao
 -- 1/25/20
--- Mario Game
--- Usage: `love .` or cmd-L-L in VScode
--- Once love opens, use the arrow keys to move toad!
+-- Mario Game (even though there's no Mario...)
+-- Usage: love { path to directory, usually just `.` }
+-- Once love opens, use the arrow keys to move Toad!
 
--- Most Recent Commit Name:"Just Housekeeping"
+-- Most Recent Commit Name:"Cleaned intro comments"
 
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
