@@ -28,7 +28,7 @@ function love.draw()
     love.graphics.setBackgroundColor(111/255,121/255,255/255)
     love.graphics.draw(background,0,0)
     -- Create Obstacles (very much TODO)
-    love.graphics.rectangle("fill", 500,400,100,100)
+    love.graphics.rectangle("fill", 500,530,100,100)
     -- Create Toad
     love.graphics.draw(toad, toad_x_pos, toad_y_pos)
 end
