@@ -17,15 +17,18 @@ toad_x_pos = LEFT_EDGE_OF_SCREEN
 toad_y_pos = WALK_PATH_HEIGHT
 
 -- Same thing for obstacles, changes from make_new_block(), might need more than one??
-block_x_pos = rand_on_axis("x")
-block_y_pos = rand_on_axis("y")
+--block_x_pos = rand_on_axis("x")
+--block_y_pos = rand_on_axis("y")
 
--- Used to prevent terrain from regenerating to early
-MAKE_NEW_TERRAIN = true
 
 -- Called once, create sprites here
 function love.load()
-    background = love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg")
+    love.physics.setMeter(20)
+    world = love.physics.newWorld(0, 9.81*64, true)
+    objects = {}
+    objects.background = {
+        image = love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg")
+    }
     toad = love.graphics.newImage("Assets/tiny toad.png")
 end
 
@@ -33,7 +36,7 @@ end
 function love.draw()
     -- Create background
     love.graphics.setBackgroundColor(111/255,121/255,255/255)
-    love.graphics.draw(background,0,0)
+    love.graphics.draw(objects.background.image,0,0)
     -- Create Obstacles (very much TODO)
         for i=1, love.math.random(1,3) do
             make_new_block(i, false)
@@ -83,6 +86,7 @@ function wrap_around()
     toad_x_pos = LEFT_EDGE_OF_SCREEN
 end
 
+-- putting this aside to try out physics
 function rand_on_axis(axis)
     if axis == "x" then
         return love.math.random(LEFT_EDGE_OF_SCREEN, RIGHT_EDGE_OF_SCREEN)
@@ -92,9 +96,10 @@ function rand_on_axis(axis)
     end    
 end
 
+--  this too 
 function make_new_block(update)
     if update == false then
-        love.graphics.rectangle("fill", block_x_pos,block_y_pos,100,100)
+      --  love.graphics.rectangle("fill", block_x_pos,block_y_pos,100,100)
     else do 
         love.graphics.rectangle("fill", rand_on_axis("x"), rand_on_axis("y"), 100, 100)
     end
