@@ -7,16 +7,14 @@
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1220
 TOP_OF_SCREEN = 0
-WALK_PATH_HEIGHT = 50
-
--- How much should toad move with each keypress?
+WALK_PATH_HEIGHT = 500
+ -- How much should toad move with each keypress?
 STEP_INCREMENT = 15
 
 -- Spawn toad at the leftmost part of the walk
 -- Not actually drawn untill later but I think it looks better up here
 toad_x_pos = LEFT_EDGE_OF_SCREEN
 toad_y_pos = WALK_PATH_HEIGHT
-
 
 -- Called once, create sprites here
 function love.load()
@@ -47,15 +45,15 @@ end
 
 function step(direction, amount)
      -- No wrap_around for these ones, it just won't let you go farther than the edge - maybe add a bounce??
-    if direction == "up" and toad_y_pos - amount >= TOP_OF_SCREEN then
+    if direction == "up" and (toad_y_pos - amount) >= TOP_OF_SCREEN then
         toad_y_pos = toad_y_pos - amount
     end
 
-    if direction == "down" and toad_y_pos + amount <= WALK_PATH_HEIGHT then
+    if direction == "down" and (toad_y_pos + amount) <= WALK_PATH_HEIGHT then
         toad_y_pos = toad_y_pos + amount
     end
 
-    if direction == "left"  and toad_x_pos - amount >= LEFT_EDGE_OF_SCREEN  then
+    if direction == "left"  and (toad_x_pos - amount) >= LEFT_EDGE_OF_SCREEN  then
         toad_x_pos = toad_x_pos - amount
     end
 
