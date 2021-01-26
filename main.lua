@@ -4,11 +4,11 @@
 -- Usage: `love .` or cmd-L-L in VScode
 -- Once love opens, use the arrow keys to move toad!
 
--- Most Recent Commit Name:"better sizing of bounds, creation of DEBUG"
+-- Most Recent Commit Name:"implementation of DEBUG, skinny queen rectangles"
 
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
-DEBUG = false
+DEBUG = false -- if true, boundaries more marked
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
@@ -47,19 +47,28 @@ function love.load()
     -- Add bouncyness, the higher the bouncier
     objects.toad.fixture:setRestitution(0.8)
 
+    local wall_width
     -- Make left edge, right edge objects
-    local wall_width = 10
+    if DEBUG then wall_width = 1 else wall_width = 20 end
     local wall_height = 2 * BOTTOM_OF_SCREEN
-    objects.left_wall = {
-        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN , WALK_PATH_HEIGHT),
-        shape = love.physics.newRectangleShape(wall_width, wall_height),
-    }
+    objects.left_wall = {shape = love.physics.newRectangleShape(wall_width, wall_height)}
+    
+    if DEBUG then
+        objects.left_wall.body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN, WALK_PATH_HEIGHT)
+
+    else
+        objects.left_wall.body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN - 10  , WALK_PATH_HEIGHT)
+    end
     objects.left_wall.fixture = love.physics.newFixture(objects.left_wall.body, objects.left_wall.shape)
 
-    objects.right_wall = {
-        body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN, WALK_PATH_HEIGHT),
-        shape = love.physics.newRectangleShape(wall_width, wall_height),
-    }
+    objects.right_wall = {shape = love.physics.newRectangleShape(wall_width, wall_height)}
+    
+    if DEBUG then
+        objects.right_wall.body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN , WALK_PATH_HEIGHT)
+
+    else
+        objects.right_wall.body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN + 10 , WALK_PATH_HEIGHT)
+        end
     objects.right_wall.fixture = love.physics.newFixture(objects.right_wall.body, objects.right_wall.shape)
 end
 
@@ -101,7 +110,7 @@ function love.update(dt)
     if  love.keyboard.isDown("space") or love.keyboard.isDown("up") then
         step("up", pixels)
     end
-    
+
     -- esc restart functionality -- WILL NOT REFLECT MODIFIED CODE
     if love.keyboard.isDown("lctrl", "c") or love.keyboard.isDown("escape") then
         love.load()
