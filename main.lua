@@ -16,6 +16,13 @@ STEP_INCREMENT = 15
 toad_x_pos = LEFT_EDGE_OF_SCREEN
 toad_y_pos = WALK_PATH_HEIGHT
 
+-- Same thing for obstacles, changes from make_new_block(), might need more than one??
+block_x_pos = rand_on_axis("x")
+block_y_pos = rand_on_axis("y")
+
+-- Used to prevent terrain from regenerating to early
+MAKE_NEW_TERRAIN = true
+
 -- Called once, create sprites here
 function love.load()
     background = love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg")
@@ -28,13 +35,16 @@ function love.draw()
     love.graphics.setBackgroundColor(111/255,121/255,255/255)
     love.graphics.draw(background,0,0)
     -- Create Obstacles (very much TODO)
-    love.graphics.rectangle("fill", 500,530,100,100)
+        for i=1, love.math.random(1,3) do
+            make_new_block(i, false)
+        end
     -- Create Toad
     love.graphics.draw(toad, toad_x_pos, toad_y_pos)
 end
 
 -- Called every $dt seconds, do game logic here
 function love.update(dt)
+    -- Checks if right, left, up, down keys are pressed, and calls appropriate step (probably should have been named move) function
     local keys = {"right", "left", "up", "down"}
     for i=1,4 do
         if love.keyboard.isDown(keys[i]) then
@@ -43,6 +53,7 @@ function love.update(dt)
     end
 end
 
+-- Moves $amount pixels towards $"direction"
 function step(direction, amount)
      -- No wrap_around for these ones, it just won't let you go farther than the edge - maybe add a bounce??
     if direction == "up" and (toad_y_pos - amount) >= TOP_OF_SCREEN then
@@ -70,4 +81,22 @@ end
 -- Probably will make new obstacles inside this function, could be a seperate func.?
 function wrap_around()
     toad_x_pos = LEFT_EDGE_OF_SCREEN
+end
+
+function rand_on_axis(axis)
+    if axis == "x" then
+        return love.math.random(LEFT_EDGE_OF_SCREEN, RIGHT_EDGE_OF_SCREEN)
+    end
+    if axis == "y" then
+      return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT)
+    end    
+end
+
+function make_new_block(quant, update)
+    if update == false then
+        love.graphics.rectangle("fill", block_x_pos,block_y_pos,100,100)
+    else do 
+        love.graphics.rectangle("fill", rand_on_axis("x"), rand_on_axis("y"), 100, 100)
+    end
+end
 end
