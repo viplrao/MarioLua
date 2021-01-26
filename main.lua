@@ -4,7 +4,7 @@
 -- Usage: `love .` or cmd-L-L in VScode
 -- Once love opens, use the arrow keys to move toad!
 
--- Most Recent Commit Name:"Added Left, Right Wall"
+-- Most Recent Commit Name:"better sizing of bounds, creation of DEBUG"
 
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
