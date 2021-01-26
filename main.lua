@@ -1,18 +1,18 @@
 -- Vipul Rao
 -- 1/25/20
 -- Mario Game
--- usage: love . or cmd-L-L in VScode
+-- Usage: `love .` or cmd-L-L in VScode
+-- Once love opens, use the arrow keys to move toad!
 
--- Sizing help
+-- Sizing constants
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1220
 TOP_OF_SCREEN = 0
 WALK_PATH_HEIGHT = 500
- -- How much should toad move with each keypress?
+-- How much should toad move with each keypress?
 STEP_INCREMENT = 15
 
--- Spawn toad at the leftmost part of the walk
--- Not actually drawn untill later but I think it looks better up here
+-- Spawn toad at the leftmost part of the walk-- Not actually drawn untill later but I think it looks better up here
 toad_x_pos = LEFT_EDGE_OF_SCREEN
 toad_y_pos = WALK_PATH_HEIGHT
 
@@ -92,7 +92,7 @@ function rand_on_axis(axis)
     end    
 end
 
-function make_new_block(quant, update)
+function make_new_block(update)
     if update == false then
         love.graphics.rectangle("fill", block_x_pos,block_y_pos,100,100)
     else do 
