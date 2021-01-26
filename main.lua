@@ -4,77 +4,72 @@
 -- Usage: `love .` or cmd-L-L in VScode
 -- Once love opens, use the arrow keys to move toad!
 
+-- Most Recent Commit Name: 
+
 -- Sizing constants
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1220
 TOP_OF_SCREEN = 0
 WALK_PATH_HEIGHT = 500
--- How much should toad move with each keypress?
-STEP_INCREMENT = 15
 
--- ALL BELOW BLOCKS MOVED INTO OBJECTS OR PAUSED
-
--- Replaced with objects.toad.{x,y}_pos
--- Old:
--- Spawn toad at the leftmost part of the walk-- Not actually drawn untill later but I think it looks better up here
---toad_x_pos = LEFT_EDGE_OF_SCREEN
---toad_y_pos = WALK_PATH_HEIGHT
-
--- Same thing for obstacles, changes from make_new_block(), might need more than one??
---block_x_pos = rand_on_axis("x")
---block_y_pos = rand_on_axis("y")
+FORCE_TO_APPLY = 400
 
 
 -- Called once, create sprites here
 function love.load()
-    
-    love.physics.setMeter(20)
+    -- Set background color
+    love.graphics.setBackgroundColor(111/255,121/255,255/255)
+
+    -- initalize "world", "stage", whatever you want to call it
+    love.physics.setMeter(64)
     world = love.physics.newWorld(0, 9.81*64, true)
+    
     -- Create an empty generic objects table
     objects = {}
-    -- Add the background to it
-    objects.background = {
-        image = love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg")
+
+    -- Make an Object for the "Bricks"
+    objects.walk_path = {
+        body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN / 2, 700),
+        shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 140)
     }
-    -- This one's a little clunkier so you can declare props line by ine
+    objects.walk_path.fixture = love.physics.newFixture(objects.walk_path.body, objects.walk_path.shape)
+    
+    -- Make a toad
     objects.toad = {
-        x_pos = LEFT_EDGE_OF_SCREEN,
-        y_pos = WALK_PATH_HEIGHT,
-        image = love.graphics.newImage("Assets/tiny toad.png")
-
+        image = love.graphics.newImage("Assets/tiny toad.png"),
+        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN, WALK_PATH_HEIGHT, "dynamic"),
+        shape = love.physics.newCircleShape(50)
     }
-    --objects.toad.x_pos = LEFT_EDGE_OF_SCREEN
-    --objects.toad.y_pos = WALK_PATH_HEIGHT
-    objects.toad.body = love.physics.newBody(world, objects.toad.x_pos, objects.toad.y_pos, "dynamic")
-
-    -- The following lines have been c+v'd. Do not expect them to work yet.
-    objects.toad.shape = love.physics.newCircleShape( 20)--the ball's shape has a radius of 20
-    objects.toad.fixture = love.physics.newFixture(objects.toad.body, objects.toad.shape, 1) -- Attach fixture to body and give it a density of 1.
-    objects.toad.fixture:setRestitution(0.9) --let the ball bounce
-
+    -- Put it all together w/density of 0.6 (number may need future tweaking, but good enough)
+    objects.toad.fixture = love.physics.newFixture(objects.toad.body, objects.toad.shape, 0.6)
+    -- And add bouncyness
+    objects.toad.fixture:setRestitution(0.8)
 end
 
 -- Add sprites to the stage here
 function love.draw()
     -- Create background
-    love.graphics.setBackgroundColor(111/255,121/255,255/255)
-    love.graphics.draw(objects.background.image,0,0)
+    love.graphics.draw(love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg"),0,0)
+    -- Add walk_path object to world
+    love.graphics.polygon("line", objects.walk_path.body:getWorldPoints(objects.walk_path.shape:getPoints()))
     -- Create Obstacles (very much TODO)
         for i=1, love.math.random(1,3) do
             make_new_block(i, false)
         end
-    -- Create Toad
-    love.graphics.draw(objects.toad.image, objects.toad.x_pos, objects.toad.y_pos)
+    -- Add toad object to world
+    love.graphics.draw(objects.toad.image, objects.toad.body:getX(),
+                       objects.toad.body:getY(), objects.toad.shape:getRadius())
 end
 
 -- Called every $dt seconds, do game logic here
 function love.update(dt)
-    -- Checks if right, left, up, down keys are pressed, and calls appropriate step (probably should have been named move) function
-    local keys = {"right", "left", "up", "down"}
+    world:update(dt)
+   -- Checks if right, left, up, down keys are pressed, and calls appropriate step (probably should have been named move) function
+    local keys = {"right","left", "up", "down"} -- DONT FORGET TO ADD RIGHT BACK
     for i=1,4 do
-        if love.keyboard.isDown(keys[i]) then
-            step(keys[i], STEP_INCREMENT)
-        end
+       if love.keyboard.isDown(keys[i]) then
+           step(keys[i], FORCE_TO_APPLY)
+         end
     end
 end
 
@@ -82,32 +77,28 @@ end
 
 -- Moves $amount pixels towards $"direction"
 function step(direction, amount)
-     -- No wrap_around for these ones, it just won't let you go farther than the edge - maybe add a bounce??
-    if direction == "up" and (objects.toad.y_pos - amount) >= TOP_OF_SCREEN then
-        objects.toad.y_pos = objects.toad.y_pos - amount
+    -- up/down don't really work right
+    if direction == "up" then
+        objects.toad.body:applyForce(0, amount)
     end
 
-    if direction == "down" and (objects.toad.y_pos + amount) <= WALK_PATH_HEIGHT then
-        objects.toad.y_pos = objects.toad.y_pos + amount
+    if direction == "down" and (objects.toad.body:getY() + amount) <= WALK_PATH_HEIGHT then
+        objects.toad.body:applyForce(0, -amount)
     end
 
-    if direction == "left"  and (objects.toad.x_pos - amount) >= LEFT_EDGE_OF_SCREEN  then
-        objects.toad.x_pos = objects.toad.x_pos - amount
+    -- left/right do, but need wrap around
+    if direction == "left"  and (objects.toad.body:getX() - amount) >= LEFT_EDGE_OF_SCREEN  then
+        objects.toad.body:applyForce(-400, 0)
     end
 
     if direction == "right" then
-         -- If toad is going to go off screen, slide it to the left edge
-        if objects.toad.x_pos + amount >= RIGHT_EDGE_OF_SCREEN then
-            wrap_around()
-        end
-        -- Once toad wraps around (or doesn't) it can keep moving like normal
-        objects.toad.x_pos = objects.toad.x_pos + amount
+        objects.toad.body:applyForce(400, 0)
     end
 end
 
 -- Probably will make new obstacles inside this function, could be a seperate func.?
 function wrap_around()
-    objects.toad.x_pos = LEFT_EDGE_OF_SCREEN
+    objects.toad.Body:setX(LEFT_EDGE_OF_SCREEN)
 end
 
 -- putting this aside to try out physics
@@ -117,14 +108,14 @@ function rand_on_axis(axis)
     end
     if axis == "y" then
       return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT)
-    end    
+    end
 end
 
 --  this too
 function make_new_block(update)
     if update == false then
       --  love.graphics.rectangle("fill", block_x_pos,block_y_pos,100,100)
-    else do 
+    else do
        -- love.graphics.rectangle("fill", rand_on_axis("x"), rand_on_axis("y"), 100, 100)
     end
 end
