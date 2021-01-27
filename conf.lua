@@ -3,3 +3,4 @@ function love.conf(t)
         t.window.height = 750 -- 750
         t.window.title = "Mario"
 end
+

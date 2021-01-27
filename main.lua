@@ -4,7 +4,7 @@
 -- Usage: love { path to directory, usually just `.` }
 -- Once love opens, use the arrow keys to move Toad!
 
--- Most Recent Commit Name:"transparent floor, walls"
+-- Previous Commit Name:"I tried to clone it..." // previous instead of most recent since I always forget to do it
 
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
@@ -52,7 +52,6 @@ end
 
 -- Add sprites to the world here, re-called everytime love.update() is triggered
 function love.draw()
-    local mode = "line"
     -- Draw background, walls (done in a seperate procedure), toad
     love.graphics.draw(love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg"),0,0)
     draw_transparent_walls()
@@ -102,6 +101,7 @@ function step(direction, amount)
 end
 
 function draw_transparent_walls()
+    local mode = "line"
     local border_transparency = 0
     if  DEBUG then
         mode  = "fill"
