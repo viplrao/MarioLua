@@ -4,7 +4,7 @@
 -- Usage: love { path to directory, usually just `.` }
 -- Once love opens, use the arrow keys to move Toad!
 
--- Most Recent Commit Name:"Cleaned intro comments"
+-- Most Recent Commit Name:"transparent floor, walls"
 
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
@@ -35,7 +35,7 @@ function love.load()
     objects.toad.body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN, WALK_PATH_HEIGHT, "dynamic")
     objects.toad.shape = love.physics.newCircleShape(50)
     objects.toad.fixture = love.physics.newFixture(objects.toad.body, objects.toad.shape, 0.6) -- Set density of 0.6
-    objects.toad.fixture:setRestitution(0.8) -- Add bouncieness to toad, the higher the bouncier
+    objects.toad.fixture:setRestitution(0.7) -- Add bouncieness to toad, the higher the bouncier
 
     -- Wall sizing
     local wall_width = 20
@@ -53,21 +53,9 @@ end
 -- Add sprites to the world here, re-called everytime love.update() is triggered
 function love.draw()
     local mode = "line"
-    local border_transparency = 0
-    if  DEBUG then
-        mode  = "fill"
-        border_transparency = 255
-    end
-
-    -- Draw background
+    -- Draw background, walls (done in a seperate procedure), toad
     love.graphics.draw(love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg"),0,0)
-    -- Switch to transparent ink, draw the floor and walls
-    love.graphics.setColor(255, 255, 255, border_transparency)
-    love.graphics.polygon(mode, objects.floor.body:getWorldPoints(objects.floor.shape:getPoints()))
-    love.graphics.polygon(mode, objects.left_wall.body:getWorldPoints(objects.left_wall.shape:getPoints()))
-    love.graphics.polygon(mode, objects.right_wall.body:getWorldPoints(objects.right_wall.shape:getPoints()))
-    -- Switch back to normal ink and draw Toad
-    love.graphics.setColor(255, 255, 255, 255)
+    draw_transparent_walls()
     love.graphics.draw(objects.toad.image, objects.toad.body:getX(), objects.toad.body:getY(), objects.toad.shape:getRadius())
 end
 
@@ -111,6 +99,25 @@ function step(direction, amount)
     if direction == "right" then
          objects.toad.body:applyForce(amount, 0)
     end
+end
+
+function draw_transparent_walls()
+    local border_transparency = 0
+    if  DEBUG then
+        mode  = "fill"
+        border_transparency = 255
+    end
+
+    -- Switch to transparent ink
+    love.graphics.setColor(255, 255, 255, border_transparency)
+
+    -- Draw what you need to draw
+    love.graphics.polygon(mode, objects.floor.body:getWorldPoints(objects.floor.shape:getPoints()))
+    love.graphics.polygon(mode, objects.left_wall.body:getWorldPoints(objects.left_wall.shape:getPoints()))
+    love.graphics.polygon(mode, objects.right_wall.body:getWorldPoints(objects.right_wall.shape:getPoints()))
+
+    -- Switch back to normal ink
+    love.graphics.setColor(255, 255, 255, 255)
 end
 
 ------ None of these are used yet -------
