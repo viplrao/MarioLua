@@ -45,9 +45,10 @@ function love.load()
     -- Wall sizing
     local wall_width = 20
 
+    -- Try to shift left wall farther left - it'll give you more room on stage
     -- Make left edge, right edge objects
     objects.left_wall = {
-        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN,
+        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN - 75,
                                     BOTTOM_OF_SCREEN / 2, "static"),
         shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)
 
