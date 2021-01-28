@@ -4,11 +4,10 @@
 -- Usage: love { path to directory, usually just `.` }
 -- Once love opens, use the arrow keys to move Toad!
 
--- Previous Commit Name:"I tried to clone it..." // previous instead of most recent since I always forget to do it
 
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
-DEBUG = false -- if true, boundaries are more marked
+DEBUG = true -- if true, boundaries are more marked
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
@@ -34,26 +33,30 @@ function love.load()
     objects.toad = {image = love.graphics.newImage("Assets/tiny toad.png")}
     objects.toad.body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN, WALK_PATH_HEIGHT, "dynamic")
     objects.toad.shape = love.physics.newCircleShape(50)
-    objects.toad.fixture = love.physics.newFixture(objects.toad.body, objects.toad.shape, 0.6) -- Set density of 0.6
-    objects.toad.fixture:setRestitution(0.7) -- Add bouncieness to toad, the higher the bouncier
+    objects.toad.fixture = love.physics.newFixture(objects.toad.body, objects.toad.shape, 0.5) -- Set density of 0.6
+    objects.toad.fixture:setRestitution(0.5) -- Add bouncieness to toad, the higher the bouncier
 
     -- Wall sizing
     local wall_width = 20
 
     -- Make left edge, right edge objects
     objects.left_wall = {shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)}
-    objects.left_wall.body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN, BOTTOM_OF_SCREEN / 2)
+    objects.left_wall.body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN , BOTTOM_OF_SCREEN / 2, "static")
     objects.left_wall.fixture = love.physics.newFixture(objects.left_wall.body, objects.left_wall.shape)
 
     objects.right_wall = {shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)}
-    objects.right_wall.body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN, BOTTOM_OF_SCREEN / 2)
+    objects.right_wall.body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN, BOTTOM_OF_SCREEN / 2, "static")
     objects.right_wall.fixture = love.physics.newFixture(objects.right_wall.body, objects.right_wall.shape)
+
+    objects.ceiling = {body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN / 2, TOP_OF_SCREEN)}
+    objects.ceiling.shape =love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
+    objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body, objects.ceiling.shape)
 end
 
 -- Add sprites to the world here, re-called everytime love.update() is triggered
 function love.draw()
     -- Draw background, walls (done in a seperate procedure), toad
-    love.graphics.draw(love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg"),0,0)
+    love.graphics.draw(love.graphics.newImage("Assets/mario_no_terrain Cropped.jpg"), LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
     draw_transparent_walls()
     love.graphics.draw(objects.toad.image, objects.toad.body:getX(), objects.toad.body:getY(), objects.toad.shape:getRadius())
 end
@@ -115,6 +118,7 @@ function draw_transparent_walls()
     love.graphics.polygon(mode, objects.floor.body:getWorldPoints(objects.floor.shape:getPoints()))
     love.graphics.polygon(mode, objects.left_wall.body:getWorldPoints(objects.left_wall.shape:getPoints()))
     love.graphics.polygon(mode, objects.right_wall.body:getWorldPoints(objects.right_wall.shape:getPoints()))
+    love.graphics.polygon(mode, objects.ceiling.body:getWorldPoints(objects.ceiling.shape:getPoints()))
 
     -- Switch back to normal ink
     love.graphics.setColor(255, 255, 255, 255)
