@@ -7,16 +7,19 @@
 ---------------------------------------------------------
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
-if arg[2] == "debug" then
-    DEBUG = true -- if true, boundaries are more marked
-else
-    DEBUG = false
-end
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
 BOTTOM_OF_SCREEN = 750
 WALK_PATH_HEIGHT = 500
+
+-- use "love {dirpath} --debug" to turn on DEBUG
+DEBUG = false
+for i = 0, #arg do
+    if arg[i] == "--debug" then
+        DEBUG = true -- if true, boundaries are more marked
+    end
+end
 
 -- Called once, create sprites here
 function love.load()
