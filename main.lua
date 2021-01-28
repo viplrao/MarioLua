@@ -63,14 +63,13 @@ function love.load()
     objects.left_wall.fixture = love.physics.newFixture(objects.left_wall.body,
                                                         objects.left_wall.shape)
 
-    objects.right_wall = {
-        body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN,
-                                    BOTTOM_OF_SCREEN / 2, "static"),
-        shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)
-    }
-    objects.right_wall.fixture = love.physics.newFixture(
-                                     objects.right_wall.body,
-                                     objects.right_wall.shape)
+    -- objects.right_wall = {
+    -- body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN,
+    -- BOTTOM_OF_SCREEN / 2, "static"),
+    -- shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)}
+    -- objects.right_wall.fixture = love.physics.newFixture(
+    -- objects.right_wall.body,
+    -- objects.right_wall.shape)
 
     -- Make a ceiling
     objects.ceiling = {
@@ -112,6 +111,10 @@ function love.update(dt)
         end
     end
 
+    if objects.toad.body:getX() + 50 > RIGHT_EDGE_OF_SCREEN then
+        wrap_around()
+    end
+
     -- Allow people to use space for up too
     if love.keyboard.isDown("space") then step("up", force) end
 
@@ -151,13 +154,16 @@ function draw_transparent_walls()
         love.graphics.polygon(mode, objects.left_wall.body:getWorldPoints(
                                   objects.left_wall.shape:getPoints()))
 
-        love.graphics.polygon(mode, objects.right_wall.body:getWorldPoints(
-                                  objects.right_wall.shape:getPoints()))
+        -- love.graphics.polygon(mode, objects.right_wall.body:getWorldPoints(
+        --                          objects.right_wall.shape:getPoints()))
 
         love.graphics.polygon(mode, objects.ceiling.body:getWorldPoints(
                                   objects.ceiling.shape:getPoints()))
     end
 end
+
+-- Will likely get filled up as more features are added, just making the placeholder now
+function wrap_around() objects.toad.body:setX(LEFT_EDGE_OF_SCREEN + 20) end
 
 ------ None of these are used yet -------
 
