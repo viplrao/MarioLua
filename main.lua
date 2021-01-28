@@ -7,7 +7,11 @@
 ---------------------------------------------------------
 -- Global, non-UI variables
 -- Before adding, check if they really need to be global...
-DEBUG = false -- if true, boundaries are more marked
+if arg[2] == "debug" then
+    DEBUG = true -- if true, boundaries are more marked
+else
+    DEBUG = false
+end
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
