@@ -20,6 +20,7 @@ for i = 0, #arg do
         DEBUG = true -- if true, boundaries are more marked
     end
 end
+if DEBUG then debug.debug() end -- command prompt debugging
 
 -- Called once, create sprites here
 function love.load()
@@ -79,6 +80,18 @@ function love.load()
     }
     objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body,
                                                       objects.ceiling.shape)
+
+    -- This holds all our obstacle blocks, so we can draw them all at once
+    objects.obstacles = {}
+
+    for i = 1, love.math.random(1, 5) do
+        table.insert(objects.obstacles, #objects.obstacles + 1, make_a_block())
+    end
+
+    print("\n")
+    for k, v in pairs(objects.obstacles) do
+        print("love.load(): objects.obstacles contains at index", k, v)
+    end
 end
 
 -- Add sprites to the world here, re-called everytime love.update() is triggered
@@ -94,6 +107,14 @@ function love.draw()
     -- Draw Toad
     love.graphics.draw(objects.toad.image, objects.toad.body:getX(),
                        objects.toad.body:getY(), objects.toad.shape:getRadius())
+
+    print("\n")
+    -- Draw obstacles
+    for i = 1, #objects.obstacles do
+        local block = objects.obstacles[i]
+        love.graphics.polygon("fill", block.body:getWorldPoints(
+                                  block.shape:getPoints()))
+    end
 end
 
 -- Called every $dt seconds, do game logic here
@@ -163,16 +184,27 @@ function draw_transparent_walls()
 end
 
 -- Will likely get filled up as more features are added, just making the placeholder now
-function wrap_around() objects.toad.body:setX(LEFT_EDGE_OF_SCREEN + 20) end
-
------- None of these are used yet -------
+function wrap_around()
+    objects.toad.body:setX(LEFT_EDGE_OF_SCREEN + 20)
+    -- love.load()
+end
 
 -- Finds a random number in range of x or y axis
 function rand_on_axis(axis)
     if axis == "x" then
-        return love.math.random(LEFT_EDGE_OF_SCREEN, RIGHT_EDGE_OF_SCREEN)
+        return love.math.random(LEFT_EDGE_OF_SCREEN + 20, RIGHT_EDGE_OF_SCREEN)
     end
     if axis == "y" then
-        return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT)
+        return WALK_PATH_HEIGHT + 50 -- love.math.random(WALK_PATH_HEIGHT - 20, WALK_PATH_HEIGHT)
     end
+end
+
+function make_a_block()
+    local block = {
+        body = love.physics.newBody(world, rand_on_axis("x"), rand_on_axis("y"),
+                                    "static"),
+        shape = love.physics.newRectangleShape(50, 50)
+    }
+    block.fixture = love.physics.newFixture(block.body, block.shape)
+    return block
 end
