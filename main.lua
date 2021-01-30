@@ -12,6 +12,8 @@ RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
 BOTTOM_OF_SCREEN = 750
 WALK_PATH_HEIGHT = 500
+SCORE = 0
+FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
 
 -- use "love {dirpath} --debug" to turn on DEBUG
 DEBUG = false
@@ -20,7 +22,6 @@ for i = 0, #arg do
         DEBUG = true -- if true, boundaries are more marked
     end
 end
-if DEBUG then debug.debug() end -- command prompt debugging
 
 -- Called once, create sprites here
 function love.load()
@@ -48,12 +49,11 @@ function love.load()
     }
     objects.toad.fixture = love.physics.newFixture(objects.toad.body,
                                                    objects.toad.shape, 0.6) -- Set density of Toad to 0.6
-    objects.toad.fixture:setRestitution(0.8) -- Add bouncieness to toad, the higher the bouncier
+    objects.toad.fixture:setRestitution(0.7) -- Add bouncieness to toad, the higher the bouncier
 
     -- Wall sizing
     local wall_width = 20
 
-    -- Try to shift left wall farther left - it'll give you more room on stage
     -- Make left edge, right edge objects
     objects.left_wall = {
         body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN - 75,
@@ -64,14 +64,6 @@ function love.load()
     objects.left_wall.fixture = love.physics.newFixture(objects.left_wall.body,
                                                         objects.left_wall.shape)
 
-    -- objects.right_wall = {
-    -- body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN,
-    -- BOTTOM_OF_SCREEN / 2, "static"),
-    -- shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)}
-    -- objects.right_wall.fixture = love.physics.newFixture(
-    -- objects.right_wall.body,
-    -- objects.right_wall.shape)
-
     -- Make a ceiling
     objects.ceiling = {
         body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN / 2,
@@ -81,16 +73,10 @@ function love.load()
     objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body,
                                                       objects.ceiling.shape)
 
-    -- This holds all our obstacle blocks, so we can draw them all at once
+    -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
     objects.obstacles = {}
-
-    for i = 1, love.math.random(1, 5) do
+    for i = 1, love.math.random(5, 10) do
         table.insert(objects.obstacles, #objects.obstacles + 1, make_a_block())
-    end
-
-    print("\n")
-    for k, v in pairs(objects.obstacles) do
-        print("love.load(): objects.obstacles contains at index", k, v)
     end
 end
 
@@ -108,17 +94,24 @@ function love.draw()
     love.graphics.draw(objects.toad.image, objects.toad.body:getX(),
                        objects.toad.body:getY(), objects.toad.shape:getRadius())
 
-    print("\n")
+    -- "Switch pens" / draw the blocks in yellow 
+    love.graphics.setColor(255, 255, 0)
     -- Draw obstacles
     for i = 1, #objects.obstacles do
         local block = objects.obstacles[i]
         love.graphics.polygon("fill", block.body:getWorldPoints(
                                   block.shape:getPoints()))
     end
+    -- "Switch back"
+    love.graphics.setColor(255, 255, 255)
+    -- Draw a score label
+    love.graphics.print("Score: " .. SCORE .. "", FONT,
+                        RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
 end
 
 -- Called every $dt seconds, do game logic here
 function love.update(dt)
+    -- For the Physics
     world:update(dt)
 
     -- How hard to push on Toad?
@@ -132,6 +125,7 @@ function love.update(dt)
         end
     end
 
+    -- If toad is heading past the edge of the screen, call wrap_around()
     if objects.toad.body:getX() + 50 > RIGHT_EDGE_OF_SCREEN then
         wrap_around()
     end
@@ -175,30 +169,39 @@ function draw_transparent_walls()
         love.graphics.polygon(mode, objects.left_wall.body:getWorldPoints(
                                   objects.left_wall.shape:getPoints()))
 
-        -- love.graphics.polygon(mode, objects.right_wall.body:getWorldPoints(
-        --                          objects.right_wall.shape:getPoints()))
-
         love.graphics.polygon(mode, objects.ceiling.body:getWorldPoints(
                                   objects.ceiling.shape:getPoints()))
     end
 end
 
--- Will likely get filled up as more features are added, just making the placeholder now
+-- Called whenever Toad gets close to the end of screen (within 50 pixels)
 function wrap_around()
-    objects.toad.body:setX(LEFT_EDGE_OF_SCREEN + 20)
-    -- love.load()
+    SCORE = SCORE + 1
+    if not DEBUG then
+        love.load()
+    else
+        -- Move Toad back
+        objects.toad.body:setX(LEFT_EDGE_OF_SCREEN)
+        -- Move each of the blocks to a new position
+        for i = 1, #objects.obstacles do
+            local block = objects.obstacles[i]
+            block.body:setX(rand_on_axis("x"))
+            block.body:setY(rand_on_axis("y"))
+        end
+    end
 end
 
 -- Finds a random number in range of x or y axis
 function rand_on_axis(axis)
     if axis == "x" then
-        return love.math.random(LEFT_EDGE_OF_SCREEN + 20, RIGHT_EDGE_OF_SCREEN)
+        return love.math.random(LEFT_EDGE_OF_SCREEN + 50, RIGHT_EDGE_OF_SCREEN)
     end
     if axis == "y" then
-        return WALK_PATH_HEIGHT + 50 -- love.math.random(WALK_PATH_HEIGHT - 20, WALK_PATH_HEIGHT)
+        return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT)
     end
 end
 
+-- Returns a block with random position, called in love.load()
 function make_a_block()
     local block = {
         body = love.physics.newBody(world, rand_on_axis("x"), rand_on_axis("y"),
