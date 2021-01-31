@@ -21,9 +21,6 @@ for i = 0, #arg do
         DEBUG = true -- if true, boundaries are more marked
     elseif arg[i] == "--no-blocks" or arg[i] == "-nb" then
         NO_BLOCKS = true -- skip drawing obstacles
-
-    elseif arg[i] == "--smooth-wrap" or arg[i] == "-s" then
-        SMOOTH_WRAP = true -- alternate game mode that probably will be the main one
     end
 end
 
@@ -200,9 +197,6 @@ function wrap_around()
             block.body:setY(rand_on_axis("y"))
         end
     end
-
-    if not SMOOTH_WRAP then love.load() end
-
 end
 
 -- Finds a random number in range of x or y axis
