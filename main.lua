@@ -6,21 +6,20 @@
 -- Once love opens, use the arrow keys to move Toad!   --
 ---------------------------------------------------------
 -- Global, non-UI variables
--- Before adding, check if they really need to be global...
 LEFT_EDGE_OF_SCREEN = 0
 RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
 BOTTOM_OF_SCREEN = 750
 WALK_PATH_HEIGHT = 500
 SCORE = 0
-FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
+FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24) -- Used for the score label
 
--- Command Line Arguments
+-- Command Line Arguments, none of these are used in default behavior
 for i = 0, #arg do
     if arg[i] == "--debug" or arg[i] == "-d" then
         DEBUG = true -- if true, boundaries are more marked
     elseif arg[i] == "--no-blocks" or arg[i] == "-nb" then
-        NO_BLOCKS = true -- skip drawing obstacles
+        NO_BLOCKS = true -- if true, skip drawing obstacles
     end
 end
 
@@ -78,6 +77,7 @@ function love.load()
         -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
         objects.obstacles = {}
         for i = 1, love.math.random(5, 10) do
+            -- call make_a_block(), and place the returned block in the next available spot in objects.obstacles
             table.insert(objects.obstacles, #objects.obstacles + 1,
                          make_a_block())
         end
@@ -101,8 +101,8 @@ function love.draw()
     -- "Switch pens" / draw the blocks in yellow
     love.graphics.setColor(255, 255, 0)
 
+    -- Draw obstacles unless told not to
     if not NO_BLOCKS then
-        -- Draw obstacles
         for i = 1, #objects.obstacles do
             local block = objects.obstacles[i]
             love.graphics.polygon("fill", block.body:getWorldPoints(
@@ -112,6 +112,7 @@ function love.draw()
 
     -- "Switch back"
     love.graphics.setColor(255, 255, 255)
+
     -- Draw a score label
     love.graphics.print("Score: " .. SCORE .. "", FONT,
                         RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
@@ -125,7 +126,7 @@ function love.update(dt)
     -- How hard to push on Toad?
     local force = 500
 
-    -- Check if right, left, up, down keys are pressed, and calls appropriate step function -- up is a special case
+    -- Check if right, left, up, down keys are pressed, and calls appropriate step function
     local force_keys = {"right", "left", "up", "down"}
     for i = 1, #force_keys do
         if love.keyboard.isDown(force_keys[i]) then
@@ -133,15 +134,15 @@ function love.update(dt)
         end
     end
 
+    -- Allow people to use space for up too
+    if love.keyboard.isDown("space") then step("up", force) end
+
     -- If toad is heading past the edge of the screen, call wrap_around()
     if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN then
         wrap_around()
     end
 
-    -- Allow people to use space for up too
-    if love.keyboard.isDown("space") then step("up", force) end
-
-    -- Hit escape or ctrl-c to restart -- WILL NOT REFLECT MODIFIED CODE!
+    -- Hit escape or ctrl-c to re-geneate terrain -- WILL NOT REFLECT MODIFIED CODE!
     if love.keyboard.isDown("lctrl", "c") or love.keyboard.isDown("escape") then
         love.load()
     end
@@ -183,12 +184,11 @@ function draw_transparent_walls()
     end
 end
 
--- Called whenever Toad gets close to the end of screen (within 50 pixels)
+-- Called whenever Toad gets close to the end of screen (within 20 pixels)
 function wrap_around()
     -- Move Toad back
     objects.toad.body:setX(LEFT_EDGE_OF_SCREEN)
     SCORE = SCORE + 1
-
     if not NO_BLOCKS then
         -- Move each of the blocks to a new position
         for i = 1, #objects.obstacles do
