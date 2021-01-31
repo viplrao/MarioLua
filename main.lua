@@ -15,11 +15,15 @@ WALK_PATH_HEIGHT = 500
 SCORE = 0
 FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
 
--- use "love {dirpath} --debug" to turn on DEBUG
-DEBUG = false
+-- Command Line Arguments
 for i = 0, #arg do
-    if arg[i] == "--debug" then
+    if arg[i] == "--debug" or arg[i] == "-d" then
         DEBUG = true -- if true, boundaries are more marked
+    elseif arg[i] == "--no-blocks" or arg[i] == "-nb" then
+        NO_BLOCKS = true -- skip drawing obstacles
+
+    elseif arg[i] == "--smooth-wrap" or arg[i] == "-s" then
+        SMOOTH_WRAP = true -- alternate game mode that probably will be the main one
     end
 end
 
@@ -73,10 +77,13 @@ function love.load()
     objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body,
                                                       objects.ceiling.shape)
 
-    -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
-    objects.obstacles = {}
-    for i = 1, love.math.random(5, 10) do
-        table.insert(objects.obstacles, #objects.obstacles + 1, make_a_block())
+    if not NO_BLOCKS then
+        -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
+        objects.obstacles = {}
+        for i = 1, love.math.random(5, 10) do
+            table.insert(objects.obstacles, #objects.obstacles + 1,
+                         make_a_block())
+        end
     end
 end
 
@@ -94,14 +101,18 @@ function love.draw()
     love.graphics.draw(objects.toad.image, objects.toad.body:getX(),
                        objects.toad.body:getY(), objects.toad.shape:getRadius())
 
-    -- "Switch pens" / draw the blocks in yellow 
+    -- "Switch pens" / draw the blocks in yellow
     love.graphics.setColor(255, 255, 0)
-    -- Draw obstacles
-    for i = 1, #objects.obstacles do
-        local block = objects.obstacles[i]
-        love.graphics.polygon("fill", block.body:getWorldPoints(
-                                  block.shape:getPoints()))
+
+    if not NO_BLOCKS then
+        -- Draw obstacles
+        for i = 1, #objects.obstacles do
+            local block = objects.obstacles[i]
+            love.graphics.polygon("fill", block.body:getWorldPoints(
+                                      block.shape:getPoints()))
+        end
     end
+
     -- "Switch back"
     love.graphics.setColor(255, 255, 255)
     -- Draw a score label
@@ -126,7 +137,7 @@ function love.update(dt)
     end
 
     -- If toad is heading past the edge of the screen, call wrap_around()
-    if objects.toad.body:getX() + 50 > RIGHT_EDGE_OF_SCREEN then
+    if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN then
         wrap_around()
     end
 
@@ -158,6 +169,7 @@ function step(direction, amount)
     if direction == "right" then objects.toad.body:applyForce(amount, 0) end
 end
 
+-- Called from love.draw() anything you want to be transparent (unless DEBUGging) should be put in here
 function draw_transparent_walls()
     -- Override transparency if DEBUGging
     local mode = "fill"
@@ -176,12 +188,11 @@ end
 
 -- Called whenever Toad gets close to the end of screen (within 50 pixels)
 function wrap_around()
+    -- Move Toad back
+    objects.toad.body:setX(LEFT_EDGE_OF_SCREEN)
     SCORE = SCORE + 1
-    if not DEBUG then
-        love.load()
-    else
-        -- Move Toad back
-        objects.toad.body:setX(LEFT_EDGE_OF_SCREEN)
+
+    if not NO_BLOCKS then
         -- Move each of the blocks to a new position
         for i = 1, #objects.obstacles do
             local block = objects.obstacles[i]
@@ -189,6 +200,9 @@ function wrap_around()
             block.body:setY(rand_on_axis("y"))
         end
     end
+
+    if not SMOOTH_WRAP then love.load() end
+
 end
 
 -- Finds a random number in range of x or y axis
