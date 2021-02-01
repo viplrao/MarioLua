@@ -76,8 +76,8 @@ function love.load()
     if not NO_BLOCKS then
         -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
         objects.obstacles = {}
-        for i = 1, love.math.random(5, 10) do
-            -- call make_a_block(), and place the returned block in the next available spot in objects.obstacles
+        for i = 1, love.math.random(8, 15) do
+            -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
             table.insert(objects.obstacles, #objects.obstacles + 1,
                          make_a_block())
         end
@@ -202,10 +202,10 @@ end
 -- Finds a random number in range of x or y axis
 function rand_on_axis(axis)
     if axis == "x" then
-        return love.math.random(LEFT_EDGE_OF_SCREEN + 50, RIGHT_EDGE_OF_SCREEN)
+        return love.math.random(LEFT_EDGE_OF_SCREEN, RIGHT_EDGE_OF_SCREEN)
     end
     if axis == "y" then
-        return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT)
+        return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT + 20)
     end
 end
 
