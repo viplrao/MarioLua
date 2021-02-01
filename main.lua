@@ -60,12 +60,6 @@ function menu:draw()
                            "Assets/mario_no_terrain Cropped.jpg"),
                        LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
 
-    -- Draw text background
-    love.graphics.setColor(0.7, 0.5, 1)
-    love.graphics.polygon("fill", objects.splash_rect.body:getWorldPoints(
-                              objects.splash_rect.shape:getPoints()))
-    love.graphics.setColor(1, 1, 1)
-
     -- Draw welcome text
     love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 150)
 
@@ -78,6 +72,7 @@ end
 -- Event: some key got released
 function menu:keyreleased(key)
     -- Switch screens when you press (and release) any key (except p, or else you'll never see the screen)
+    love.graphics.clear()
     if key ~= "p" then Gamestate.switch(game) end
 end
 
@@ -208,18 +203,6 @@ end
 
 -- Below two functions create all our sprites (toad, walls, etc.)
 function fill_objects()
-    ------- Menu Stage ---------
-
-    -- Make background Rectangle for the Loading Screen
-    objects.splash_rect = {
-        body = love.physics.newBody(world, CENTER_X, CENTER_Y + 50, "static"),
-        shape = love.physics.newRectangleShape(800, 500)
-    }
-    objects.splash_rect.fixture = love.physics.newFixture(
-                                      objects.splash_rect.body,
-                                      objects.splash_rect.shape)
-
-    ------- Game Stage ---------
 
     -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
 
