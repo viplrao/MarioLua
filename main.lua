@@ -11,6 +11,8 @@ RIGHT_EDGE_OF_SCREEN = 1334
 TOP_OF_SCREEN = 0
 BOTTOM_OF_SCREEN = 750
 WALK_PATH_HEIGHT = 500
+CENTER_X = RIGHT_EDGE_OF_SCREEN / 2
+CENTER_Y = WALK_PATH_HEIGHT / 2
 SCORE = 0
 FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24) -- Used for the score label
 
@@ -21,6 +23,24 @@ for i = 0, #arg do
     elseif arg[i] == "--no-blocks" or arg[i] == "-nb" then
         NO_BLOCKS = true -- if true, skip drawing obstacles
     end
+end
+
+-- Setup the Hump Library for switching screens
+Gamestate = require("hump.gamestate")
+local menu = {}
+local game = {}
+
+function menu:draw()
+    love.graphics.draw(love.graphics.newImage(
+                           "Assets/mario_no_terrain Cropped.jpg"),
+                       LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
+    love.graphics.print("Press Enter to continue", FONT, 500, CENTER_Y)
+
+end
+
+function menu:keyreleased(key)
+    -- Switch screens when you press enter
+    if key == 'return' then Gamestate.switch(game) end
 end
 
 -- Called once, create sprites here
@@ -35,7 +55,7 @@ function love.load()
 
     -- Make floor, toad, side walls
     objects.floor = {
-        body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN / 2, 600),
+        body = love.physics.newBody(world, CENTER_X, 600),
         shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
     }
     objects.floor.fixture = love.physics.newFixture(objects.floor.body,
@@ -82,10 +102,14 @@ function love.load()
                          make_a_block())
         end
     end
+
+    -- Start with the Menu Screen
+    Gamestate.registerEvents()
+    Gamestate.switch(menu)
 end
 
 -- Add sprites to the world here, re-called everytime love.update() is triggered
-function love.draw()
+function game:draw()
     -- Draw background, walls
     love.graphics.draw(love.graphics.newImage(
                            "Assets/mario_no_terrain Cropped.jpg"),
@@ -119,7 +143,7 @@ function love.draw()
 end
 
 -- Called every $dt seconds, do game logic here
-function love.update(dt)
+function game:update(dt)
     -- For the Physics
     world:update(dt)
 
