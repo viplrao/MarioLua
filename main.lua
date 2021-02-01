@@ -76,7 +76,7 @@ function love.load()
     if not NO_BLOCKS then
         -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
         objects.obstacles = {}
-        for i = 1, love.math.random(8, 15) do
+        for i = 1, love.math.random(8, 12) do
             -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
             table.insert(objects.obstacles, #objects.obstacles + 1,
                          make_a_block())
