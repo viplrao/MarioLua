@@ -33,17 +33,22 @@ local menu = {}
 local game = {}
 
 function menu:draw()
+    local message =
+        " Welcome!\n\n Use the arrow keys to move Toad,\n and get points when you reach the end.\n\n If a level seems impossible, it might be! \n These are all randomly generated, so press escape\n to re-load. \n\n Press any key to start."
     love.graphics.draw(love.graphics.newImage(
                            "Assets/mario_no_terrain Cropped.jpg"),
                        LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
-    love.graphics.print("Welcome!\n Press Enter to continue", FONT, 500,
-                        CENTER_Y)
+    love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 50)
+
+    -- Draw a score label
+    love.graphics.print("Score: " .. SCORE .. "", FONT,
+                        RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
 
 end
 
 function menu:keyreleased(key)
-    -- Switch screens when you press enter
-    if key == 'return' then Gamestate.switch(game) end
+    -- Switch screens when you press any key
+    Gamestate.switch(game)
 end
 
 -- Called once, create sprites here
