@@ -40,56 +40,12 @@ function love.load()
 
     objects = {} -- Create an empty table for our objects
 
-    -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
+    fill_objects() -- Moved into a procedure because it's so much stuff
 
-    -- Make floor, toad, side walls
-    objects.floor = {
-        body = love.physics.newBody(world, CENTER_X, 600),
-        shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
-    }
-    objects.floor.fixture = love.physics.newFixture(objects.floor.body,
-                                                    objects.floor.shape) -- Attach body to shape
+    -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
+    objects.obstacles = {}
 
-    objects.toad = {
-        image = love.graphics.newImage("Assets/tiny toad.png"),
-        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN,
-                                    WALK_PATH_HEIGHT, "dynamic"),
-        shape = love.physics.newCircleShape(50)
-    }
-    objects.toad.fixture = love.physics.newFixture(objects.toad.body,
-                                                   objects.toad.shape, 0.6) -- Set density of Toad to 0.6
-    objects.toad.fixture:setRestitution(0.7) -- Add bouncieness to toad, the higher the bouncier
-
-    -- Wall sizing
-    local wall_width = 20
-
-    -- Make left edge, right edge objects
-    objects.left_wall = {
-        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN - 75,
-                                    BOTTOM_OF_SCREEN / 2, "static"),
-        shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)
-
-    }
-    objects.left_wall.fixture = love.physics.newFixture(objects.left_wall.body,
-                                                        objects.left_wall.shape)
-
-    -- Make a ceiling
-    objects.ceiling = {
-        body = love.physics.newBody(world, CENTER_X, TOP_OF_SCREEN),
-        shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
-    }
-    objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body,
-                                                      objects.ceiling.shape)
-
-    if not NO_BLOCKS then
-        -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
-        objects.obstacles = {}
-        for i = 1, love.math.random(8, 12) do
-            -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
-            table.insert(objects.obstacles, #objects.obstacles + 1,
-                         make_a_block())
-        end
-    end
+    fill_objects_obstacles()
 
     Gamestate.registerEvents()
     Gamestate.switch(menu)
@@ -157,7 +113,7 @@ function game:update(dt)
     -- How hard to push on Toad?
     local force = 500
 
-    -- Check if right, left, up, down keys are pressed, and calls appropriate step function
+    -- Check if right, left, up, down keys are pressed, and call appropriate step function
     local force_keys = {"right", "left", "up", "down"}
     for i = 1, #force_keys do
         if love.keyboard.isDown(force_keys[i]) then
@@ -232,8 +188,8 @@ end
 function rand_on_axis(axis)
     if axis == "x" then
         return love.math.random(LEFT_EDGE_OF_SCREEN + 50, RIGHT_EDGE_OF_SCREEN)
-    end
-    if axis == "y" then
+
+    elseif axis == "y" then
         return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT + 20)
     end
 end
@@ -247,4 +203,60 @@ function make_a_block()
     }
     block.fixture = love.physics.newFixture(block.body, block.shape)
     return block
+end
+
+function fill_objects()
+
+    -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
+
+    -- Make floor
+    objects.floor = {
+        body = love.physics.newBody(world, CENTER_X, 600),
+        shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
+    }
+    objects.floor.fixture = love.physics.newFixture(objects.floor.body,
+                                                    objects.floor.shape) -- Attach body to shape
+
+    -- Make toad
+    objects.toad = {
+        image = love.graphics.newImage("Assets/tiny toad.png"),
+        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN,
+                                    WALK_PATH_HEIGHT, "dynamic"),
+        shape = love.physics.newCircleShape(50)
+    }
+    objects.toad.fixture = love.physics.newFixture(objects.toad.body,
+                                                   objects.toad.shape, 0.6) -- Set density of Toad to 0.6
+    objects.toad.fixture:setRestitution(0.7) -- Add bouncieness to toad, the higher the bouncier
+
+    -- Wall sizing
+    local wall_width = 20
+
+    -- Make left wall, right wall objects
+    objects.left_wall = {
+        body = love.physics.newBody(world, LEFT_EDGE_OF_SCREEN - 75,
+                                    BOTTOM_OF_SCREEN / 2, "static"),
+        shape = love.physics.newRectangleShape(wall_width, BOTTOM_OF_SCREEN)
+
+    }
+    objects.left_wall.fixture = love.physics.newFixture(objects.left_wall.body,
+                                                        objects.left_wall.shape)
+
+    -- Make ceiling
+    objects.ceiling = {
+        body = love.physics.newBody(world, CENTER_X, TOP_OF_SCREEN),
+        shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
+    }
+    objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body,
+                                                      objects.ceiling.shape)
+end
+
+function fill_objects_obstacles()
+    if not NO_BLOCKS then
+        -- Make a random (8-12) amount of blocks, store them in objects.obstacles
+        for _ = 1, love.math.random(8, 12) do
+            -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
+            table.insert(objects.obstacles, #objects.obstacles + 1,
+                         make_a_block())
+        end
+    end
 end
