@@ -15,8 +15,6 @@ CENTER_X = RIGHT_EDGE_OF_SCREEN / 2
 CENTER_Y = WALK_PATH_HEIGHT / 2
 SCORE = 0
 FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
-CENTER_X = CENTER_X
-CENTER_Y = WALK_PATH_HEIGHT / 2
 
 -- INPUT: Command Line Arguments, none of these are used in default behavior
 for i = 0, #arg do
