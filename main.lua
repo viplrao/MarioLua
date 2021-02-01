@@ -18,7 +18,7 @@ FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
 CENTER_X = CENTER_X
 CENTER_Y = WALK_PATH_HEIGHT / 2
 
--- Command Line Arguments, none of these are used in default behavior
+-- INPUT: Command Line Arguments, none of these are used in default behavior
 for i = 0, #arg do
     if arg[i] == "--debug" or arg[i] == "-d" then
         DEBUG = true -- if true, boundaries are more marked
@@ -27,8 +27,8 @@ for i = 0, #arg do
     end
 end
 
--- Setup the Hump Library for switching screens
-Gamestate = require("hump.gamestate")
+-- Setup the Hump Library for switching screens (any time you see Library or lib, it is NOT my code)
+Gamestate = require("lib.hump.gamestate")
 local menu = {} --  Since Lua doesn't have "real" objects, obejects / gamestates are tables
 local game = {}
 
@@ -66,6 +66,7 @@ function menu:draw()
 
 end
 
+-- Event: some key got released
 function menu:keyreleased(key)
     -- Switch screens when you press (and release) any key (except p, or else you'll never see the screen)
     if key ~= "p" then Gamestate.switch(game) end
@@ -113,7 +114,7 @@ function game:update(dt)
     -- How hard to push on Toad?
     local force = 500
 
-    -- Check if right, left, up, down keys are pressed, and call appropriate step function
+    -- INPUT: Check if right, left, up, down keys are pressed, and call appropriate step function
     local force_keys = {"right", "left", "up", "down"}
     for i = 1, #force_keys do
         if love.keyboard.isDown(force_keys[i]) then
@@ -121,14 +122,14 @@ function game:update(dt)
         end
     end
 
-    -- Allow people to use space for up too
+    -- INPUT: Allow people to use space for up too
     if love.keyboard.isDown("space") then step("up", force) end
 
-    -- If toad is heading past the edge of the screen or escape is pressed, call wrap_around()
+    -- If toad is heading past the edge of the screen or INPUT: escape is pressed, call wrap_around()
     if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN or
         love.keyboard.isDown("escape") then wrap_around() end
 
-    -- Hit p(ause) to see the menu again
+    -- INPUT: Hit p(ause) to see the menu again
     if love.keyboard.isDown("p") then Gamestate.switch(menu) end
 
 end
@@ -173,7 +174,9 @@ end
 function wrap_around()
     -- Move Toad back
     objects.toad.body:setX(LEFT_EDGE_OF_SCREEN)
+    -- Increase Score
     SCORE = SCORE + 1
+    -- Move the blocks to new positions
     if not NO_BLOCKS then
         -- Move each of the blocks to a new position
         for i = 1, #objects.obstacles do
