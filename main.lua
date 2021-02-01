@@ -29,7 +29,7 @@ end
 
 -- Setup the Hump Library for switching screens
 Gamestate = require("hump.gamestate")
-local menu = {}
+local menu = {} --  Since Lua doesn't have "real" objects, obejects / gamestates are tables
 local game = {}
 
 -- Called once, create sprites here
@@ -45,7 +45,7 @@ function love.load()
     -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
     objects.obstacles = {}
 
-    fill_objects_obstacles()
+    if not NO_BLOCKS then fill_objects_obstacles() end
 
     Gamestate.registerEvents()
     Gamestate.switch(menu)
@@ -205,6 +205,7 @@ function make_a_block()
     return block
 end
 
+-- Below two functions create all our sprites (toad, walls, etc.)
 function fill_objects()
 
     -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
@@ -250,13 +251,11 @@ function fill_objects()
                                                       objects.ceiling.shape)
 end
 
+-- This one creates just the obstacles
 function fill_objects_obstacles()
-    if not NO_BLOCKS then
-        -- Make a random (8-12) amount of blocks, store them in objects.obstacles
-        for _ = 1, love.math.random(8, 12) do
-            -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
-            table.insert(objects.obstacles, #objects.obstacles + 1,
-                         make_a_block())
-        end
+    -- Make a random (8-12) amount of blocks, store them in objects.obstacles
+    for _ = 1, love.math.random(8, 12) do
+        -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
+        table.insert(objects.obstacles, #objects.obstacles + 1, make_a_block())
     end
 end
