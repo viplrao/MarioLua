@@ -14,8 +14,8 @@ WALK_PATH_HEIGHT = 500
 CENTER_X = RIGHT_EDGE_OF_SCREEN / 2
 CENTER_Y = WALK_PATH_HEIGHT / 2
 SCORE = 0
-FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24) -- Used for the score label
-CENTER_X = RIGHT_EDGE_OF_SCREEN / 2
+FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
+CENTER_X = CENTER_X
 CENTER_Y = WALK_PATH_HEIGHT / 2
 
 -- Command Line Arguments, none of these are used in default behavior
@@ -31,26 +31,6 @@ end
 Gamestate = require("hump.gamestate")
 local menu = {}
 local game = {}
-
--- Draw the start menu
-function menu:draw()
-    local message =
-        "Welcome!\n\n Use the arrow keys to move Toad,\n and get points when you reach the end.\n\n If a level seems impossible, it might be! \n These are all randomly generated, so press escape\n to re-load and come back to this screen. \n Your score will be preserved. \n\n Press any other key to start."
-    love.graphics.draw(love.graphics.newImage(
-                           "Assets/mario_no_terrain Cropped.jpg"),
-                       LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
-    love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 50)
-
-    -- Draw score label
-    love.graphics.print("Score: " .. SCORE .. "", FONT,
-                        RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
-
-end
-
-function menu:keyreleased(key)
-    -- Switch screens when you press any key (except escape, or else you'll never see the screen)
-    if key ~= "escape" then Gamestate.switch(game) end
-end
 
 -- Called once, create sprites here
 function love.load()
@@ -95,8 +75,7 @@ function love.load()
 
     -- Make a ceiling
     objects.ceiling = {
-        body = love.physics.newBody(world, RIGHT_EDGE_OF_SCREEN / 2,
-                                    TOP_OF_SCREEN),
+        body = love.physics.newBody(world, CENTER_X, TOP_OF_SCREEN),
         shape = love.physics.newRectangleShape(RIGHT_EDGE_OF_SCREEN, 20)
     }
     objects.ceiling.fixture = love.physics.newFixture(objects.ceiling.body,
@@ -112,12 +91,31 @@ function love.load()
         end
     end
 
-    -- Switch to start menu
     Gamestate.registerEvents()
     Gamestate.switch(menu)
+
 end
 
--- Add sprites to the world here, re-called everytime love.update() is triggered
+-- Draw the start menu
+function menu:draw()
+    local message =
+        ' Welcome!\n\n Use the arrow keys to move Toad,\n and get points when you reach the end.\n\n If a level seems impossible, it might be! \n These are all randomly generated, so press\n escape to reload. \n \n Press "p" to come back to this screen. \n Your score will be preserved. \n\n Press any other key to go to the game.'
+    love.graphics.draw(love.graphics.newImage(
+                           "Assets/mario_no_terrain Cropped.jpg"),
+                       LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
+    love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 100)
+
+    love.graphics.print("Score: " .. SCORE .. "", FONT,
+                        RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
+
+end
+
+function menu:keyreleased(key)
+    -- Switch screens when you press (and release) any key (except p, or else you'll never see the screen)
+    if key ~= "p" then Gamestate.switch(game) end
+end
+
+-- Put anything you want drawn in scene `game` here
 function game:draw()
     -- Draw background, walls
     love.graphics.draw(love.graphics.newImage(
@@ -170,15 +168,13 @@ function game:update(dt)
     -- Allow people to use space for up too
     if love.keyboard.isDown("space") then step("up", force) end
 
-    -- If toad is heading past the edge of the screen, call wrap_around()
-    if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN then
-        wrap_around()
-    end
+    -- If toad is heading past the edge of the screen or escape is pressed, call wrap_around()
+    if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN or
+        love.keyboard.isDown("escape") then wrap_around() end
 
-    -- Hit escape or ctrl-c to re-geneate terrain -- WILL NOT REFLECT MODIFIED CODE!
-    if love.keyboard.isDown("lctrl", "c") or love.keyboard.isDown("escape") then
-        love.load()
-    end
+    -- Hit p(ause) to see the menu again
+    if love.keyboard.isDown("p") then Gamestate.switch(menu) end
+
 end
 
 -------- Below this line are functions that I have made --------
@@ -235,7 +231,7 @@ end
 -- Finds a random number in range of x or y axis
 function rand_on_axis(axis)
     if axis == "x" then
-        return love.math.random(LEFT_EDGE_OF_SCREEN, RIGHT_EDGE_OF_SCREEN)
+        return love.math.random(LEFT_EDGE_OF_SCREEN + 50, RIGHT_EDGE_OF_SCREEN)
     end
     if axis == "y" then
         return love.math.random(TOP_OF_SCREEN, WALK_PATH_HEIGHT + 20)
