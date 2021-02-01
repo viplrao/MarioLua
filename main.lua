@@ -15,6 +15,8 @@ CENTER_X = RIGHT_EDGE_OF_SCREEN / 2
 CENTER_Y = WALK_PATH_HEIGHT / 2
 SCORE = 0
 FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24) -- Used for the score label
+CENTER_X = RIGHT_EDGE_OF_SCREEN / 2
+CENTER_Y = WALK_PATH_HEIGHT / 2
 
 -- Command Line Arguments, none of these are used in default behavior
 for i = 0, #arg do
@@ -34,7 +36,8 @@ function menu:draw()
     love.graphics.draw(love.graphics.newImage(
                            "Assets/mario_no_terrain Cropped.jpg"),
                        LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
-    love.graphics.print("Press Enter to continue", FONT, 500, CENTER_Y)
+    love.graphics.print("Welcome!\n Press Enter to continue", FONT, 500,
+                        CENTER_Y)
 
 end
 
