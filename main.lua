@@ -54,11 +54,22 @@ end
 function menu:draw()
     local message =
         ' Welcome!\n\n Use the arrow keys to move Toad,\n and get points when you reach the end.\n\n If a level seems impossible, it might be! \n These are all randomly generated, so press\n escape to reload. \n \n Press "p" to come back to this screen. \n Your score will be preserved. \n\n Press any other key to go to the game.'
+
+    -- Keep the same background image
     love.graphics.draw(love.graphics.newImage(
                            "Assets/mario_no_terrain Cropped.jpg"),
                        LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
-    love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 100)
 
+    -- Draw text background
+    love.graphics.setColor(0.7, 0.5, 1)
+    love.graphics.polygon("fill", objects.splash_rect.body:getWorldPoints(
+                              objects.splash_rect.shape:getPoints()))
+    love.graphics.setColor(1, 1, 1)
+
+    -- Draw welcome text
+    love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 150)
+
+    -- Draw score label
     love.graphics.print("Score: " .. SCORE .. "", FONT,
                         RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
 
@@ -85,7 +96,7 @@ function game:draw()
                        objects.toad.body:getY(), objects.toad.shape:getRadius())
 
     -- "Switch pens" / draw the blocks in yellow
-    love.graphics.setColor(255, 255, 0)
+    love.graphics.setColor(1, 1, 0)
 
     -- Draw obstacles unless told not to
     if not NO_BLOCKS then
@@ -97,7 +108,7 @@ function game:draw()
     end
 
     -- "Switch back"
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
 
     -- Draw score label
     love.graphics.print("Score: " .. SCORE .. "", FONT,
@@ -195,19 +206,20 @@ function rand_on_axis(axis)
     end
 end
 
--- Returns a block with random position, called in love.load()
-function make_a_block()
-    local block = {
-        body = love.physics.newBody(world, rand_on_axis("x"), rand_on_axis("y"),
-                                    "static"),
-        shape = love.physics.newRectangleShape(50, 50)
-    }
-    block.fixture = love.physics.newFixture(block.body, block.shape)
-    return block
-end
-
 -- Below two functions create all our sprites (toad, walls, etc.)
 function fill_objects()
+    ------- Menu Stage ---------
+
+    -- Make background Rectangle for the Loading Screen
+    objects.splash_rect = {
+        body = love.physics.newBody(world, CENTER_X, CENTER_Y + 50, "static"),
+        shape = love.physics.newRectangleShape(800, 500)
+    }
+    objects.splash_rect.fixture = love.physics.newFixture(
+                                      objects.splash_rect.body,
+                                      objects.splash_rect.shape)
+
+    ------- Game Stage ---------
 
     -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
 
@@ -259,4 +271,15 @@ function fill_objects_obstacles()
         -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
         table.insert(objects.obstacles, #objects.obstacles + 1, make_a_block())
     end
+end
+
+-- Returns a block with random position, called in love.load()
+function make_a_block()
+    local block = {
+        body = love.physics.newBody(world, rand_on_axis("x"), rand_on_axis("y"),
+                                    "static"),
+        shape = love.physics.newRectangleShape(50, 50)
+    }
+    block.fixture = love.physics.newFixture(block.body, block.shape)
+    return block
 end
