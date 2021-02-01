@@ -32,23 +32,24 @@ Gamestate = require("hump.gamestate")
 local menu = {}
 local game = {}
 
+-- Draw the start menu
 function menu:draw()
     local message =
-        " Welcome!\n\n Use the arrow keys to move Toad,\n and get points when you reach the end.\n\n If a level seems impossible, it might be! \n These are all randomly generated, so press escape\n to re-load. \n\n Press any key to start."
+        "Welcome!\n\n Use the arrow keys to move Toad,\n and get points when you reach the end.\n\n If a level seems impossible, it might be! \n These are all randomly generated, so press escape\n to re-load and come back to this screen. \n Your score will be preserved. \n\n Press any other key to start."
     love.graphics.draw(love.graphics.newImage(
                            "Assets/mario_no_terrain Cropped.jpg"),
                        LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
     love.graphics.print(message, FONT, CENTER_X - 300, CENTER_Y - 50)
 
-    -- Draw a score label
+    -- Draw score label
     love.graphics.print("Score: " .. SCORE .. "", FONT,
                         RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
 
 end
 
 function menu:keyreleased(key)
-    -- Switch screens when you press any key
-    Gamestate.switch(game)
+    -- Switch screens when you press any key (except escape, or else you'll never see the screen)
+    if key ~= "escape" then Gamestate.switch(game) end
 end
 
 -- Called once, create sprites here
@@ -111,7 +112,7 @@ function love.load()
         end
     end
 
-    -- Start with the Menu Screen
+    -- Switch to start menu
     Gamestate.registerEvents()
     Gamestate.switch(menu)
 end
@@ -145,7 +146,7 @@ function game:draw()
     -- "Switch back"
     love.graphics.setColor(255, 255, 255)
 
-    -- Draw a score label
+    -- Draw score label
     love.graphics.print("Score: " .. SCORE .. "", FONT,
                         RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
 end
