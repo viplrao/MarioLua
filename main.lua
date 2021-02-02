@@ -129,9 +129,13 @@ function game:update(dt)
     -- INPUT: Allow people to use space for up too
     if love.keyboard.isDown("space") then step("up", force) end
 
-    -- If toad is heading past the edge of the screen or INPUT: escape is pressed, call wrap_around()
-    if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN or
-        love.keyboard.isDown("escape") then wrap_around() end
+    -- If toad is heading past the edge of the screen, call wrap_around
+    if objects.toad.body:getX() + 20 > RIGHT_EDGE_OF_SCREEN then
+        wrap_around(true)
+    end
+
+    -- INPUT: if escape key is pressed, call wrap_around to make new terrain, but DO NOT increase score
+    if love.keyboard.isDown("escape") then wrap_around(false) end
 
     -- INPUT: Hit p(ause) to see the menu again
     if love.keyboard.isDown("p") then Gamestate.switch(menu) end
@@ -175,11 +179,13 @@ function draw_transparent_walls()
 end
 
 -- Called whenever Toad gets close to the end of screen (within 20 pixels)
-function wrap_around()
+function wrap_around(level_done)
     -- Move Toad back
     objects.toad.body:setX(LEFT_EDGE_OF_SCREEN)
-    -- Increase Score
-    SCORE = SCORE + 1
+    if level_done then
+        -- Increase Score
+        SCORE = SCORE + 1
+    end
     -- Move the blocks to new positions
     if not NO_BLOCKS then
         -- Move each of the blocks to a new position
