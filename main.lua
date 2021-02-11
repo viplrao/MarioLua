@@ -27,7 +27,7 @@ end
 
 -- Setup the Hump Library for switching screens (any time you see Library or lib, it is NOT my code)
 Gamestate = require("lib.hump.gamestate")
-local menu = {} --  Since Lua doesn't have "real" objects, obejects / gamestates are tables
+local menu = {} --  Since Lua doesn't have "real" objects, objects / sprites / gamestates are tables
 local game = {}
 
 -- Called once, create sprites here
@@ -36,13 +36,9 @@ function love.load()
     love.physics.setMeter(64) -- 1 digital meter = 64 pixels, likely too late to change now
     world = love.physics.newWorld(0, 9.81 * 64, true) -- make a world with 9.81*64 (earths?) gravity
 
-    objects = {} -- Create an empty table for our objects
-
     fill_objects() -- Moved into a procedure because it's so much stuff
 
     -- objects.obstacles holds all our obstacle blocks, so we can draw them all at once
-    objects.obstacles = {}
-
     if not NO_BLOCKS then fill_objects_obstacles() end
 
     Gamestate.registerEvents()
@@ -187,13 +183,7 @@ function wrap_around(level_done)
         SCORE = SCORE + 1
     end
     -- Move each of the blocks to a new position
-    if not NO_BLOCKS then
-        for i = 1, #objects.obstacles do
-            local block = objects.obstacles[i]
-            block.body:setX(rand_on_axis("x"))
-            block.body:setY(rand_on_axis("y"))
-        end
-    end
+    if not NO_BLOCKS then fill_objects_obstacles() end
 end
 
 -- Finds a random number in range of x or y axis
@@ -208,6 +198,7 @@ end
 
 -- Below two functions create all our sprites (toad, walls, etc.)
 function fill_objects()
+    objects = {} -- Create an empty table for our objects
 
     -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
 
@@ -252,8 +243,10 @@ function fill_objects()
                                                       objects.ceiling.shape)
 end
 
--- This one creates just the obstacles
+-- This one creates just the obstacles - seperate so you can call it in game:update() whenever you want a new level
 function fill_objects_obstacles()
+    -- Putting all the obstacles in one table means you can manipulate them all at once and WAY reduces the amount of variables needed
+    objects.obstacles = {} -- Either initalize empty table (if this is the first time being called) or empty table (to replace the blocks inside it)
     -- Make a random (8-12) amount of blocks, store them in objects.obstacles
     for _ = 1, love.math.random(8, 12) do
         -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
