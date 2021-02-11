@@ -243,12 +243,11 @@ function fill_objects()
                                                       objects.ceiling.shape)
 end
 
--- This one creates just the obstacles - seperate so you can call it in game:update() whenever you want a new level
+-- This one creates just the obstacles - seperate from fill_objects() so you can call it in game:update() whenever you want a new level
 function fill_objects_obstacles()
-    -- Putting all the obstacles in one table means you can manipulate them all at once and WAY reduces the amount of variables needed
-    objects.obstacles = {} -- Either initalize empty table (if this is the first time being called) or empty table (to replace the blocks inside it)
-    -- Make a random (8-12) amount of blocks, store them in objects.obstacles
-    for _ = 1, love.math.random(8, 12) do
+    objects.obstacles = {} -- Either initalize empty table (if this is the first time being called) or empty the table table (to replace the blocks inside it)
+    -- Make a random (2-12) amount of blocks, store them in objects.obstacles
+    for _ = 1, love.math.random(2, 12) do
         -- Call make_a_block(), and place the returned block in the next available spot in objects.obstacles
         table.insert(objects.obstacles, #objects.obstacles + 1, make_a_block())
     end
