@@ -142,7 +142,7 @@ function game:update(dt)
 
 end
 
--------- Below this line are functions that I have made --------
+-------- Below this line are functions that I have made (from scratch, ie. not built-in events to fill) --------
 
 -- Apply $amount force towards $"direction"
 function step(direction, amount)
@@ -161,7 +161,7 @@ function step(direction, amount)
     if direction == "right" then objects.toad.body:applyForce(amount, 0) end
 end
 
--- Called from love.draw() anything you want to be transparent (unless DEBUGging) should be put in here
+-- Called from love.draw() - anything you want to be transparent (unless DEBUGging) should be put in here
 function draw_transparent_walls()
     -- Override transparency if DEBUGging
     local mode = "fill"
@@ -186,9 +186,8 @@ function wrap_around(level_done)
         -- Increase Score
         SCORE = SCORE + 1
     end
-    -- Move the blocks to new positions
+    -- Move each of the blocks to a new position
     if not NO_BLOCKS then
-        -- Move each of the blocks to a new position
         for i = 1, #objects.obstacles do
             local block = objects.obstacles[i]
             block.body:setX(rand_on_axis("x"))
