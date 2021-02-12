@@ -16,25 +16,25 @@ CENTER_Y = WALK_PATH_HEIGHT / 2
 SCORE = 0
 FONT = love.graphics.newFont("Assets/Fira Code.ttf", 24)
 
--- INPUT: Command Line Arguments, none of these are used in default behavior
+-- INPUT: Command Line Arguments, none of these are used in default behavior, could probably delete?
 for i = 0, #arg do
     if arg[i] == "--debug" or arg[i] == "-d" then
-        DEBUG = true -- if true, boundaries are more marked
+        DEBUG = true -- if true, boundaries are more marked, helpful for adjusting wall positons
     elseif arg[i] == "--no-blocks" or arg[i] == "-nb" then
         NO_BLOCKS = true -- if true, skip drawing obstacles
     end
 end
 
--- Setup the Hump Library for switching screens (any time you see Library or lib, it is NOT my code)
+-- Setup the Hump Library for switching screens (any time you see Library or lib, it is NOT my code, I'm just using it to fit my program)
 Gamestate = require("lib.hump.gamestate")
-local menu = {} --  Since Lua doesn't have "real" objects, obejects / gamestates are tables
+local menu = {} --  Since Lua doesn't have "real" objects, objects / gamestates are tables
 local game = {}
 
--- Called once, create sprites here
+-- Called once, sprites made here
 function love.load()
     -- Initalize "world", "stage", whatever you want to call it
     love.physics.setMeter(64) -- 1 digital meter = 64 pixels, likely too late to change now
-    world = love.physics.newWorld(0, 9.81 * 64, true) -- make a world with 9.81*64 (earths?) gravity
+    world = love.physics.newWorld(0, 9.81 * 64, true) -- make a world with 9.81*64 (earth's?) gravity
 
     objects = {} -- Create an empty table for our objects
 
@@ -46,7 +46,7 @@ function love.load()
     if not NO_BLOCKS then fill_objects_obstacles() end
 
     Gamestate.registerEvents()
-    Gamestate.switch(menu)
+    Gamestate.switch(menu) -- Start at the Intro Screen
 
 end
 
@@ -71,19 +71,19 @@ end
 
 -- Event: some key got released
 function menu:keyreleased(key)
-    -- Switch screens when you press (and release) any key (except p, or else you'll never see the screen)
+    -- Switch screens when you press (and release) any key (except p, or else you'll never see the screen when you try to pause)
     love.graphics.clear()
     if key ~= "p" then Gamestate.switch(game) end
 end
 
--- Put anything you want drawn in scene `game` here
+--  Anything drawn in the game screen goes here
 function game:draw()
     -- Draw background, walls
     love.graphics.draw(love.graphics.newImage(
                            "Assets/mario_no_terrain Cropped.jpg"),
                        LEFT_EDGE_OF_SCREEN, TOP_OF_SCREEN)
 
-    -- Draw anything that you want hidden
+    -- Draw anything that you want hidden (left, top, bottom walls to keep toad from falling through screen)
     draw_transparent_walls()
 
     -- Draw Toad
@@ -93,9 +93,9 @@ function game:draw()
     -- "Switch pens" / draw the blocks in yellow
     love.graphics.setColor(1, 1, 0)
 
-    -- Draw obstacles unless told not to
+    -- Draw obstacle blocks unless told not to (via variable NO_BLOCKS, set via command line)
     if not NO_BLOCKS then
-        for i = 1, #objects.obstacles do
+        for i = 1, #objects.obstacles do -- #table_name is just how Lua does length(table_name) aka this is a for-each loop
             local block = objects.obstacles[i]
             love.graphics.polygon("fill", block.body:getWorldPoints(
                                       block.shape:getPoints()))
@@ -110,7 +110,7 @@ function game:draw()
                         RIGHT_EDGE_OF_SCREEN - 200, TOP_OF_SCREEN + 20)
 end
 
--- Called every $dt seconds, do game logic here
+-- Called every $dt seconds, game logic here
 function game:update(dt)
     -- For the Physics
     world:update(dt)
@@ -143,6 +143,7 @@ function game:update(dt)
 end
 
 -------- Below this line are functions that I have made (from scratch, ie. not built-in events to fill) --------
+-------- Usages are all above --------
 
 -- Apply $amount force towards $"direction"
 function step(direction, amount)
@@ -196,7 +197,7 @@ function wrap_around(level_done)
     end
 end
 
--- Finds a random number in range of x or y axis
+-- Finds, returns a random number in range of x or y axis
 function rand_on_axis(axis)
     if axis == "x" then
         return love.math.random(LEFT_EDGE_OF_SCREEN + 50, RIGHT_EDGE_OF_SCREEN)
@@ -209,7 +210,7 @@ end
 -- Below two functions create all our sprites (toad, walls, etc.)
 function fill_objects()
 
-    -- NOTE: love.physics.newBody uses center point, love.physics.newShape sets dimensions
+    -- NOTE: love.physics.newBody takes center point, love.physics.newShape takes dimensions
 
     -- Make floor
     objects.floor = {
@@ -261,7 +262,7 @@ function fill_objects_obstacles()
     end
 end
 
--- Returns a block with random position, called in love.load()
+-- Returns a block with random position
 function make_a_block()
     local block = {
         body = love.physics.newBody(world, rand_on_axis("x"), rand_on_axis("y"),
